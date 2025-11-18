@@ -81,6 +81,72 @@ class BookingController {
   }
 
   /**
+   * GET /api/bookings/:place
+   */
+  async getTop(req, res, next){
+    try{
+
+      const { period, user_id } = req.query;
+
+      let filteredData = await bookingService.getAllBookings();
+
+      if (period) {
+          const startDate = await bookingService.getStartDate(period);
+          if (startDate) {
+              filteredData = filteredData.filter(item => item.date >= startDate);
+          } else {
+              return res.status(400).json({ 
+                status: 'error', 
+                message: 'Неверный параметр.' });
+          }
+      }
+
+      if (user_id) {
+        const id = parseInt(user_id);
+        filteredData = filteredData.filter(item => item.user_id === id);
+      }
+
+      const filteredDataUser = [];
+      filteredDataUser.push(filteredData[0])
+      filteredDataUser[0].booking_count = 0; 
+      let id = filteredData[0].user_id;
+      let count = 0;     
+
+      filteredData.forEach((element, index, array) => {
+        if (element.user_id == id) {
+          filteredDataUser[count].booking_count += 1; 
+          return
+        }
+
+        count++;
+        filteredDataUser.push(element);
+        filteredDataUser[count].booking_count = 1; 
+        id = element.user_id;
+      })
+
+      filteredDataUser.sort((a, b) => b.booking_count - a.booking_count);
+
+      const top10 = filteredData.slice(0, 10);
+
+      const top10Place = top10.map((item, index) => ({
+        ...item,
+        place: index + 1
+      }));  
+
+      res.status(200).json({
+        success: true,
+        data: {
+          top_bookings: top10Place
+        },
+        count: top10WithPlace.length
+      });
+    }
+    catch (error){
+      next(error);
+    }
+  }
+
+  /**
    * GET /api/bookings/:id
    */
   async getId(req, res, next) {

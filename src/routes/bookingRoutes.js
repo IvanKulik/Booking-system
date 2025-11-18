@@ -11,4 +11,7 @@ router.get('/', bookingController.getAll.bind(bookingController));
 // GET /api/bookings/:id - Получить бронирование по ID
 router.get('/:id', bookingController.getId.bind(bookingController));
 
+// GET /api/bookings/:place - Получить топ 10 бронирования
+router.get('/:place', bookingController.getTop.bind(bookingController));
+
 module.exports = router;

@@ -96,6 +96,32 @@ class BookingService {
   }
 
   /**
+   * Получение даты начала фильтрации
+   * @param {Date} startPeriod 
+   * @returns {Promise<Date||null>}
+   */
+  async getStartDate(startPeriod) {
+      const nowDate = new Date();
+      let startDate;
+
+      switch (startPeriod) {
+          case 'day':
+              startDate = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDay());
+              break;
+          case 'week':
+              startDate = new Date(nowDate.setDate(nowDate.getDate() - nowDate.getDay()));
+              startDate.setHours(0, 0, 0, 0);
+              break;
+          case 'month':
+              startDate = new Date(nowDate.getFullYear(), nowDate.getMonth(), 1);
+              break;
+          default:
+              return null;
+      }
+      return startDate;
+  };
+
+  /**
    * Проверить, есть ли у пользователя бронирование на мероприятие
    * @param {number} eventId - ID мероприятия
    * @param {string} userId - ID пользователя
